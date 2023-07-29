@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>FullModdedFuriesAPI.Installer</RootNamespace>
+    <Description>The FMODF installer for players.</Description>
+    <TargetFramework>net471</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="assets\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FMODF.Toolkit\FMODF.Toolkit.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\FMODF.Internal\FMODF.Internal.projitems" Label="Shared" />
+  <Import Project="..\..\build\common.targets" />
+  <Import Project="..\..\build\prepare-install-package.targets" />
+</Project>

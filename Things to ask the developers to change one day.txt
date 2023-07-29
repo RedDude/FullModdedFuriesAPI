@@ -1,0 +1,13 @@
+LocalBuilder is internal, which make getting local strings hard insided mods
+
+Camp_Base is internal, CharacterSelector is Internal, God please remove all internals.
+
+The game version is not in a variable, only in the title screen as a string, which is impossible to access
+
+ResetInstrument have a check in enum using switch case without default, which sets a sprite inside the cases of the switch case, causing a null pointer
+
+HandleInput and ForceSwapLeft in CharacterSelector using a enum check instead of array.lenght, making really hard to add new characters to CharacterSelector 
+
+Number of controllers/Player as a configurable value
+Classes to list
+

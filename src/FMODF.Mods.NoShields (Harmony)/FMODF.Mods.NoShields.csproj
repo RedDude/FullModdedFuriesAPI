@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>NoShields</AssemblyName>
+    <RootNamespace>FullModdedFuriesAPI.Mods.NoShields</RootNamespace>
+    <TargetFramework>net45</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableHarmony>true</EnableHarmony>
+  </PropertyGroup>
+  <!-- <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup> -->
+
+  <Import Project="..\..\build\common.targets" />
+
+  <ItemGroup>
+    <Reference Include="$(GameExecutableName)" HintPath="$(GamePath)\$(GameExecutableName).exe" Private="False" />
+    <Reference Include="0Harmony" HintPath="$(GamePath)\fmodf-internal\0Harmony.dll">
+      <HintPath>..\..\build\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="CDGEngine" HintPath="$(GamePath)\CDGEngine.dll" />
+    <Reference Include="BlitNet" HintPath="$(GamePath)\BlitNet.dll" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RedDude.FullMetalFuries.ModBuildConfig" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FMODF\FMODF.csproj" />
+  </ItemGroup>
+  
+
+  <Import Project="..\FMODF.Internal\FMODF.Internal.projitems" Label="Shared" />
+</Project>

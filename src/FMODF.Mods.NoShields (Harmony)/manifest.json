@@ -1,0 +1,9 @@
+{
+    "Name": "No Shields",
+    "Author": "FMODF",
+    "Version": "3.12.6",
+    "Description": "Remove class specific shields",
+    "UniqueID": "FMODF.NoShields",
+    "EntryDll": "NoShields.dll",
+    "MinimumApiVersion": "3.12.6"
+}

@@ -1,0 +1,83 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--set general build properties -->
+    <Version>3.12.6</Version>
+    <Product>FMODF</Product>
+    <LangVersion>latest</LangVersion>
+    <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+
+    <!--set platform-->
+    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);FMODF_FOR_WINDOWS;FMODF_FOR_XNA</DefineConstants>
+  </PropertyGroup>
+
+  <!--find game folder-->
+  <Import Project="find-game-folder.targets" />
+
+  <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
+  <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">
+    <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically. You can specify where to find it; see https://fmodf.io/package/custom-game-path." />
+  </Target>
+
+  <!-- copy files into game directory and enable debugging -->
+  <Target Name="CopyFmodfFiles" AfterTargets="AfterBuild">
+    <CallTarget Targets="CopyFMODF;CopyDefaultMods" />
+  </Target>
+  <Target Name="CopyFMODF" Condition="'$(MSBuildProjectName)' == 'FMODF'">
+    <ItemGroup>
+      <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
+    </ItemGroup>
+
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\FMODF.config.json" DestinationFiles="$(GamePath)\fmodf-internal\config.json" />
+    <Copy SourceFiles="$(TargetDir)\FMODF.metadata.json" DestinationFiles="$(GamePath)\fmodf-internal\metadata.json" />
+    <Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\0Harmony.xml" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Mdb.dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Pdb.dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\fmodf-internal\i18n" />
+  </Target>
+
+  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'FMODF.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'FMODF.Mods.ErrorHandler' OR '$(MSBuildProjectName)' == 'FMODF.Mods.SaveBackup'">
+    <ItemGroup>
+      <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
+    </ItemGroup>
+
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
+    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
+    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)\i18n" />
+  </Target>
+
+  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'FMODF.Toolkit' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\fmodf-internal" />
+  </Target>
+
+  <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'FMODF.Toolkit.CoreInterfaces' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\fmodf-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\fmodf-internal" />
+  </Target>
+
+  <!-- common build settings -->
+  <PropertyGroup>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <!-- launch FMODF through Visual Studio -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'FMODF'">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(GamePath)\FullModdedFuriesAPI.exe</StartProgram>
+    <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
+  </PropertyGroup>
+
+  <!-- Somehow this makes Visual Studio for macOS recognise the previous section. Nobody knows why. -->
+  <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
+</Project>

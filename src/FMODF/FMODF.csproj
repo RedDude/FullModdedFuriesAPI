@@ -1,0 +1,110 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>FullModdedFuriesAPI</AssemblyName>
+    <RootNamespace>FullModdedFuriesAPI</RootNamespace>
+    <Description>The modding API for Full Metal Furies.</Description>
+    <TargetFramework>net45</TargetFramework>
+     <PlatformTarget>x86</PlatformTarget>
+    <OutputType>Exe</OutputType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <LargeAddressAware Condition="'$(OS)' == 'Windows_NT'">true</LargeAddressAware>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <!-- <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup> -->
+
+  <Import Project="..\..\build\common.targets" />
+
+  <ItemGroup>
+    <PackageReference Include="LargeAddressAware" Version="1.0.5" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+    <PackageReference Include="MonoMod.Common" Version="21.6.21.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\build\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="$(GameExecutableName)" HintPath="$(GamePath)\$(GameExecutableName).exe" Private="False" />
+    <Reference Include="BlitNet" HintPath="$(GamePath)\BlitNet.dll" Private="False" />
+    <Reference Include="CDGEngine" HintPath="$(GamePath)\CDGEngine.dll" />
+    <Reference Include="FNA" HintPath="$(GamePath)\FNA.dll" />
+    <Reference Include="InputSystem2" HintPath="$(GamePath)\InputSystem2.dll" />
+    <Reference Include="SpriteSystem2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Full Metal Furies\SpriteSystem2.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" Private="True" />
+    <Reference Include="System.Runtime.Caching" Private="True" />
+<!--    <Reference Include="GalaxyCSharp" HintPath="$(GamePath)\GalaxyCSharp.dll" Private="False" />-->
+<!--    <Reference Include="Lidgren.Network" HintPath="$(GamePath)\Lidgren.Network.dll" Private="False" />-->
+
+    <!--    <Reference Include="Brawler2D, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
+    <!--      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Full Metal Furies\Brawler2D.exe</HintPath>-->
+    <!--    </Reference>-->
+    <!-- <Reference Include="InputSystem2">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Full Metal Furies\InputSystem2.dll</HintPath>
+    </Reference> -->
+</ItemGroup>
+
+  <!-- <ItemGroup>
+    <Publicize Include="$(GameExecutableName):Brawler2D.Camp_Base" />
+  </ItemGroup> -->
+
+  <!-- Windows only -->
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <!-- Game framework -->
+<!--  <Choose>-->
+<!--    <When Condition="$(DefineConstants.Contains(FMODF_FOR_XNA))">-->
+<!--      <ItemGroup>-->
+<!--        <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />-->
+<!--        <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />-->
+<!--        <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />-->
+<!--        <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />-->
+<!--      </ItemGroup>-->
+<!--    </When>-->
+<!--    <Otherwise>-->
+<!--      <ItemGroup>-->
+<!--        <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="False" />-->
+<!--      </ItemGroup>-->
+<!--    </Otherwise>-->
+<!--  </Choose>-->
+
+  <PropertyGroup>
+    <PublicizeAsReferenceAssemblies>false</PublicizeAsReferenceAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FMODF.Toolkit.CoreInterfaces\FMODF.Toolkit.CoreInterfaces.csproj" />
+    <ProjectReference Include="..\FMODF.Toolkit\FMODF.Toolkit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="FMODF.config.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="FMODF.metadata.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <None Update="i18n\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\FMODF.Toolkit\Framework\LowLevelEnvironmentUtility.cs">
+      <Link>Framework\Utilities\LowLevelEnvironmentUtility.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <Import Project="..\FMODF.Internal\FMODF.Internal.projitems" Label="Shared" />
+  <Import Project="..\FMODF.Internal.Patching\FMODF.Internal.Patching.projitems" Label="Shared" />
+</Project>

@@ -1,0 +1,45 @@
+@using Microsoft.Extensions.Options
+@using FullModdedFuriesAPI.Web.Framework
+@using FullModdedFuriesAPI.Web.Framework.ConfigModels
+@inject IOptions<SiteConfig> SiteConfig
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - FMODF.io</title>
+    <link rel="stylesheet" href="~/Content/css/main.css" />
+    @RenderSection("Head", required: false)
+</head>
+<body>
+    <div id="sidebar">
+        <h4>FMODF</h4>
+        <ul>
+            <li><a href="@Url.PlainAction("Index", "Index")">About FMODF</a></li>
+            <li><a href="https://stardewvalleywiki.com/Modding:Index">Modding docs</a></li>
+        </ul>
+
+        <h4>Tools</h4>
+        <ul>
+            <li><a href="@Url.PlainAction("Index", "Mods")">Mod compatibility</a></li>
+            <li><a href="@Url.PlainAction("Index", "LogParser", values: null)">Log parser</a></li>
+            <li><a href="@Url.PlainAction("Index", "JsonValidator", values: null)">JSON validator</a></li>
+        </ul>
+    </div>
+    <div id="content-column">
+        <div id="content">
+            @if (ViewData["ViewTitle"] as string != string.Empty)
+            {
+                <h1>@(ViewData["ViewTitle"] ?? ViewData["Title"])</h1>
+            }
+            @RenderBody()
+        </div>
+        <div id="footer">
+            <div id="license">
+                Hi! See the <a href="@Url.PlainAction("Privacy", "Index")">privacy page</a>, <a href="https://github.com/pathoschild/FMODF" title="view source">FMODF's source code</a>, or <a href="https://fmodf.io/community" title="community pages">ask questions</a>.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

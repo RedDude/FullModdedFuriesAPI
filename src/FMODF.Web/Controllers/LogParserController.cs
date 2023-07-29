@@ -1,0 +1,129 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using FullModdedFuriesAPI.Toolkit.Utilities;
+using FullModdedFuriesAPI.Web.Framework;
+using FullModdedFuriesAPI.Web.Framework.LogParsing;
+using FullModdedFuriesAPI.Web.Framework.LogParsing.Models;
+using FullModdedFuriesAPI.Web.Framework.Storage;
+using FullModdedFuriesAPI.Web.ViewModels;
+
+namespace FullModdedFuriesAPI.Web.Controllers
+{
+    /// <summary>Provides a web UI and API for parsing FMODF log files.</summary>
+    internal class LogParserController : Controller
+    {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>Provides access to raw data storage.</summary>
+        private readonly IStorageProvider Storage;
+
+
+        /*********
+        ** Public methods
+        *********/
+        /***
+        ** Constructor
+        ***/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="storage">Provides access to raw data storage.</param>
+        public LogParserController(IStorageProvider storage)
+        {
+            this.Storage = storage;
+        }
+
+        /***
+        ** Web UI
+        ***/
+        /// <summary>Render the log parser UI.</summary>
+        /// <param name="id">The stored file ID.</param>
+        /// <param name="raw">Whether to display the raw unparsed log.</param>
+        /// <param name="renew">Whether to reset the log expiry.</param>
+        [HttpGet]
+        [Route("log")]
+        [Route("log/{id}")]
+        public async Task<ViewResult> Index(string id = null, bool raw = false, bool renew = false)
+        {
+            // fresh page
+            if (string.IsNullOrWhiteSpace(id))
+                return this.View("Index", this.GetModel(id));
+
+            // log page
+            StoredFileInfo file = await this.Storage.GetAsync(id, renew);
+            ParsedLog log = file.Success
+                ? new LogParser().Parse(file.Content)
+                : new ParsedLog { IsValid = false, Error = file.Error };
+
+            return this.View("Index", this.GetModel(id, uploadWarning: file.Warning, expiry: file.Expiry).SetResult(log, raw));
+        }
+
+        /***
+        ** JSON
+        ***/
+        /// <summary>Save raw log data.</summary>
+        [HttpPost, AllowLargePosts]
+        [Route("log")]
+        public async Task<ActionResult> PostAsync()
+        {
+            // get raw log text
+            string input = this.Request.Form["input"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(input))
+                return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
+
+            // upload log
+            UploadResult uploadResult = await this.Storage.SaveAsync(input);
+            if (!uploadResult.Succeeded)
+                return this.View("Index", this.GetModel(null, uploadError: uploadResult.UploadError));
+
+            // redirect to view
+            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { id = uploadResult.ID }));
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Build a log parser model.</summary>
+        /// <param name="pasteID">The stored file ID.</param>
+        /// <param name="expiry">When the uploaded file will no longer be available.</param>
+        /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
+        /// <param name="uploadError">An error which occurred while uploading the log.</param>
+        private LogParserModel GetModel(string pasteID, DateTime? expiry = null, string uploadWarning = null, string uploadError = null)
+        {
+            Platform? platform = this.DetectClientPlatform();
+
+            return new LogParserModel(pasteID, platform)
+            {
+                UploadWarning = uploadWarning,
+                UploadError = uploadError,
+                Expiry = expiry
+            };
+        }
+
+        /// <summary>Detect the viewer's OS.</summary>
+        /// <returns>Returns the viewer OS if known, else null.</returns>
+        private Platform? DetectClientPlatform()
+        {
+            string userAgent = this.Request.Headers["User-Agent"];
+            switch (userAgent)
+            {
+                case string ua when ua.Contains("Windows"):
+                    return Platform.Windows;
+
+                case string ua when ua.Contains("Android"): // check for Android before Linux because Android user agents also contain Linux
+                    return Platform.Android;
+
+                case string ua when ua.Contains("Linux"):
+                    return Platform.Linux;
+
+                case string ua when ua.Contains("Mac"):
+                    return Platform.Mac;
+
+                default:
+                    return null;
+            }
+        }
+    }
+}

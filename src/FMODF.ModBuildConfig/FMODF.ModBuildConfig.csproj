@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!--build-->
+    <RootNamespace>FullModdedFuriesAPI.ModBuildConfig</RootNamespace>
+    <TargetFramework>net452</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!--NuGet package-->
+    <PackageId>RedDude.FullMetalFuries.ModBuildConfig</PackageId>
+    <Title>Build package for FMODF mods</Title>
+    <Version>3.3.0</Version>
+    <Authors>RedDude</Authors>
+    <Description>Automates the build configuration for crossplatform Full Metal Furies FMODF mods. For FMODF 1.0 or later.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>images/icon.png</PackageIcon>
+    <PackageProjectUrl></PackageProjectUrl>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <PackageVersion>2.0.1</PackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--project files-->
+    <None Include="..\..\docs\technical\mod-package.md" Link="mod-package.md" />
+
+    <!--NuGet package files-->
+    <None PackagePath="analyzers/dotnet/cs" Include="$(SolutionDir)/FMODF.ModBuildConfig.Analyzer/bin/netstandard2.0/FMODF.ModBuildConfig.Analyzer.dll" Pack="true" Visible="false" />
+    <None PackagePath="build/" Include="..\..\build\find-game-folder.targets" Link="build/find-game-folder.targets" Pack="true" />
+    <None PackagePath="build/" Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" Visible="false" />
+    <None PackagePath="build/" Include="$(OutputPath)\FMODF.Toolkit.dll" Pack="true" Visible="false" />
+    <None PackagePath="build/" Include="$(OutputPath)\FMODF.Toolkit.CoreInterfaces.dll" Pack="true" Visible="false" />
+    <None PackagePath="build/FMODF.ModBuildConfig.dll" Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" Visible="false" />
+    <None PackagePath="build/RedDude.FullMetalFuries.ModBuildConfig.targets" Include="build\fmodf.targets" Pack="true" />
+    <None PackagePath="images/icon.png" Include="assets\nuget-icon.png" Pack="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FMODF.Toolkit\FMODF.Toolkit.csproj" />
+  </ItemGroup>
+</Project>

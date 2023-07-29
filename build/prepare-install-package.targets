@@ -1,0 +1,151 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+
+  This build task is run from the installer project after all projects have been compiled, and
+  creates the build package in the bin\Packages folder.
+
+  -->
+  <Target Name="PrepareInstaller" AfterTargets="AfterBuild">
+    <PropertyGroup>
+      <PlatformName>windows</PlatformName>
+      <PlatformName Condition="$(OS) != 'Windows_NT'">unix</PlatformName>
+
+      <BuildRootPath>$(SolutionDir)</BuildRootPath>
+      <OutRootPath>$(SolutionDir)\..\bin</OutRootPath>
+
+      <FmodfBin>$(BuildRootPath)\FMODF\bin\$(Configuration)</FmodfBin>
+      <ToolkitBin>$(BuildRootPath)\FMODF.Toolkit\bin\$(Configuration)\net4.5</ToolkitBin>
+      <ConsoleCommandsBin>$(BuildRootPath)\FMODF.Mods.ConsoleCommands\bin\$(Configuration)</ConsoleCommandsBin>
+      <ErrorHandlerBin>$(BuildRootPath)\FMODF.Mods.ErrorHandler\bin\$(Configuration)</ErrorHandlerBin>
+      <SaveBackupBin>$(BuildRootPath)\FMODF.Mods.SaveBackup\bin\$(Configuration)</SaveBackupBin>
+
+      <PackagePath>$(OutRootPath)\FMODF installer</PackagePath>
+      <PackageDevPath>$(OutRootPath)\FMODF installer for developers</PackageDevPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <TranslationFiles Include="$(FmodfBin)\i18n\*.json" />
+      <ErrorHandlerTranslationFiles Include="$(ErrorHandlerBin)\i18n\*.json" />
+    </ItemGroup>
+
+    <!-- reset package directory -->
+    <RemoveDir Directories="$(PackagePath)" />
+    <RemoveDir Directories="$(PackageDevPath)" />
+
+    <!-- copy installer files -->
+    <Copy SourceFiles="$(TargetDir)\assets\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
+    <Copy SourceFiles="$(TargetDir)\assets\unix-install.sh" DestinationFiles="$(PackagePath)\install on macOS.command" />
+    <Copy SourceFiles="$(TargetDir)\assets\windows-install.bat" DestinationFiles="$(PackagePath)\install on Windows.bat" />
+    <Copy SourceFiles="$(TargetDir)\assets\README.txt" DestinationFiles="$(PackagePath)\README.txt" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\internal\install.exe" />
+    <Copy Condition="$(PlatformName) == 'windows'" SourceFiles="$(TargetDir)\assets\windows-exe-config.xml" DestinationFiles="$(PackagePath)\internal\install.exe.config" />
+
+    <!--copy bundle files-->
+    <Copy SourceFiles="$(FmodfBin)\FullModdedFuriesAPI.exe" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(FmodfBin)\FullModdedFuriesAPI.pdb" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(FmodfBin)\FullModdedFuriesAPI.xml" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(FmodfBin)\steam_appid.txt" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(FmodfBin)\0Harmony.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(FmodfBin)\0Harmony.xml" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(FmodfBin)\Mono.Cecil.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(FmodfBin)\Mono.Cecil.Mdb.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(FmodfBin)\Mono.Cecil.Pdb.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(FmodfBin)\MonoMod.Common.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(FmodfBin)\Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <!-- <Copy SourceFiles="$(FmodfBin)\TMXTile.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" /> -->
+    <Copy SourceFiles="$(FmodfBin)\FMODF.config.json" DestinationFiles="$(PackagePath)\bundle\fmodf-internal\config.json" />
+    <Copy SourceFiles="$(FmodfBin)\FMODF.metadata.json" DestinationFiles="$(PackagePath)\bundle\fmodf-internal\metadata.json" />
+    <Copy SourceFiles="$(ToolkitBin)\FMODF.Toolkit.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(ToolkitBin)\FMODF.Toolkit.pdb" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(ToolkitBin)\FMODF.Toolkit.xml" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(ToolkitBin)\FMODF.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(ToolkitBin)\FMODF.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="$(ToolkitBin)\FMODF.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(PackagePath)\bundle\fmodf-internal\i18n" />
+    <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(TargetDir)\assets\unix-launcher.sh" DestinationFiles="$(PackagePath)\bundle\FullModdedFuriesAPI" />
+    <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(FmodfBin)\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(FmodfBin)\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy Condition="$(PlatformName) == 'windows'" SourceFiles="$(TargetDir)\assets\windows-exe-config.xml" DestinationFiles="$(PackagePath)\bundle\FullModdedFuriesAPI.exe.config" />
+
+    <!--copy bundled mods-->
+    <Copy SourceFiles="$(ConsoleCommandsBin)\ConsoleCommands.dll" DestinationFolder="$(PackagePath)\bundle\Mods\ConsoleCommands" />
+    <Copy SourceFiles="$(ConsoleCommandsBin)\ConsoleCommands.pdb" DestinationFolder="$(PackagePath)\bundle\Mods\ConsoleCommands" />
+    <Copy SourceFiles="$(ConsoleCommandsBin)\manifest.json" DestinationFolder="$(PackagePath)\bundle\Mods\ConsoleCommands" />
+    <Copy SourceFiles="$(ErrorHandlerBin)\ErrorHandler.dll" DestinationFolder="$(PackagePath)\bundle\Mods\ErrorHandler" />
+    <Copy SourceFiles="$(ErrorHandlerBin)\ErrorHandler.pdb" DestinationFolder="$(PackagePath)\bundle\Mods\ErrorHandler" />
+    <Copy SourceFiles="$(ErrorHandlerBin)\manifest.json" DestinationFolder="$(PackagePath)\bundle\Mods\ErrorHandler" />
+    <Copy SourceFiles="@(ErrorHandlerTranslationFiles)" DestinationFolder="$(PackagePath)\bundle\Mods\ErrorHandler\i18n" />
+    <Copy SourceFiles="$(SaveBackupBin)\SaveBackup.dll" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
+    <Copy SourceFiles="$(SaveBackupBin)\SaveBackup.pdb" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
+    <Copy SourceFiles="$(SaveBackupBin)\manifest.json" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
+
+    <!-- fix errors on Linux/macOS (sample: https://fmodf.io/log/mMdFUpgB) -->
+    <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(TargetDir)\assets\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+    <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(TargetDir)\assets\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\fmodf-internal" />
+
+    <!-- fix Linux/macOS permissions -->
+    <Exec Condition="$(PlatformName) == 'unix'" Command="chmod 755 &quot;$(PackagePath)\install on Linux.sh&quot;" />
+    <Exec Condition="$(PlatformName) == 'unix'" Command="chmod 755 &quot;$(PackagePath)\install on macOS.command&quot;" />
+
+    <!-- finalise 'for developers' installer -->
+    <ItemGroup>
+      <PackageFiles Include="$(PackagePath)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDevPath)\%(RecursiveDir)" />
+    <ZipDirectory FromDirPath="$(PackageDevPath)\bundle" ToFilePath="$(PackageDevPath)\internal\install.dat"  />
+    <RemoveDir Directories="$(PackageDevPath)\bundle" />
+
+    <!-- finalise normal installer -->
+    <ReplaceFileText FilePath="$(PackagePath)\bundle\fmodf-internal\config.json" Search="&quot;DeveloperMode&quot;: true" Replace="&quot;DeveloperMode&quot;: false" />
+    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\install.dat" />
+    <RemoveDir Directories="$(PackagePath)\bundle" />
+  </Target>
+
+  <!-- Create a zip file with the contents of a given folder path. Derived from https://stackoverflow.com/a/38127938/262123. -->
+  <UsingTask TaskName="ZipDirectory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <FromDirPath ParameterType="System.String" Required="true" />
+      <ToFilePath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.IO.Compression.FileSystem" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        try
+        {
+          ZipFile.CreateFromDirectory(FromDirPath, ToFilePath);
+          return true;
+        }
+        catch(Exception ex)
+        {
+          Log.LogErrorFromException(ex);
+          return false;
+        }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- Replace text in a file based on a regex pattern. Derived from https://stackoverflow.com/a/22571621/262123. -->
+  <UsingTask TaskName="ReplaceFileText" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <FilePath ParameterType="System.String" Required="true" />
+      <Search ParameterType="System.String" Required="true" />
+      <Replace ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            File.WriteAllText(
+                FilePath,
+                Regex.Replace(File.ReadAllText(FilePath), Search, Replace)
+            );
+          ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+</Project>

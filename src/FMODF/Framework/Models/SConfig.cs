@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using FullModdedFuriesAPI.Internal.ConsoleWriting;
+
+namespace FullModdedFuriesAPI.Framework.Models
+{
+    /// <summary>The FMODF configuration settings.</summary>
+    internal class SConfig
+    {
+        /********
+        ** Fields
+        ********/
+        /// <summary>The default config values, for fields that should be logged if different.</summary>
+        private static readonly IDictionary<string, object> DefaultValues = new Dictionary<string, object>
+        {
+            [nameof(CheckForUpdates)] = true,
+            [nameof(ParanoidWarnings)] = Constants.IsDebugBuild,
+            [nameof(UseBetaChannel)] = Constants.ApiVersion.IsPrerelease(),
+            [nameof(GitHubProjectName)] = "Pathoschild/FMODF",
+            [nameof(WebApiBaseUrl)] = "https://fmodf.io/api/",
+            [nameof(VerboseLogging)] = false,
+            [nameof(LogNetworkTraffic)] = false,
+            [nameof(RewriteMods)] = true,
+            [nameof(AggressiveMemoryOptimizations)] = false
+        };
+
+        /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
+        private static readonly HashSet<string> DefaultSuppressUpdateChecks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "FMODF.ConsoleCommands",
+            "FMODF.ErrorHandler",
+            "FMODF.SaveBackup"
+        };
+
+
+        /********
+        ** Accessors
+        ********/
+        /// <summary>Whether to enable development features.</summary>
+        public bool DeveloperMode { get; set; }
+
+        /// <summary>Whether to check for newer versions of FMODF and mods on startup.</summary>
+        public bool CheckForUpdates { get; set; }
+
+        /// <summary>Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</summary>
+        public bool ParanoidWarnings { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.ParanoidWarnings)];
+
+        /// <summary>Whether to show beta versions as valid updates.</summary>
+        public bool UseBetaChannel { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.UseBetaChannel)];
+
+        /// <summary>FMODF's GitHub project name, used to perform update checks.</summary>
+        public string GitHubProjectName { get; set; }
+
+        /// <summary>Stardew64Installer's GitHub project name, used to perform update checks.</summary>
+        public string Stardew64InstallerGitHubProjectName { get; set; }
+
+        /// <summary>The base URL for FMODF's web API, used to perform update checks.</summary>
+        public string WebApiBaseUrl { get; set; }
+
+        /// <summary>Whether FMODF should log more information about the game context.</summary>
+        public bool VerboseLogging { get; set; }
+
+        /// <summary>Whether FMODF should rewrite mods for compatibility.</summary>
+        public bool RewriteMods { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
+
+        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
+        public bool AggressiveMemoryOptimizations { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.AggressiveMemoryOptimizations)];
+
+        /// <summary>Whether FMODF should log network traffic. Best combined with <see cref="VerboseLogging"/>, which includes network metadata.</summary>
+        public bool LogNetworkTraffic { get; set; }
+
+        /// <summary>The colors to use for text written to the FMODF console.</summary>
+        public ColorSchemeConfig ConsoleColors { get; set; }
+
+        /// <summary>The mod IDs FMODF should ignore when performing update checks or validating update keys.</summary>
+        public string[] SuppressUpdateChecks { get; set; }
+
+
+        /********
+        ** Public methods
+        ********/
+        /// <summary>Get the settings which have been customized by the player.</summary>
+        public IDictionary<string, object> GetCustomSettings()
+        {
+            IDictionary<string, object> custom = new Dictionary<string, object>();
+
+            foreach (var pair in SConfig.DefaultValues)
+            {
+                object value = typeof(SConfig).GetProperty(pair.Key)?.GetValue(this);
+                if (!pair.Value.Equals(value))
+                    custom[pair.Key] = value;
+            }
+
+            HashSet<string> curSuppressUpdateChecks = new HashSet<string>(this.SuppressUpdateChecks ?? new string[0], StringComparer.OrdinalIgnoreCase);
+            if (SConfig.DefaultSuppressUpdateChecks.Count != curSuppressUpdateChecks.Count || SConfig.DefaultSuppressUpdateChecks.Any(p => !curSuppressUpdateChecks.Contains(p)))
+                custom[nameof(this.SuppressUpdateChecks)] = "[" + string.Join(", ", this.SuppressUpdateChecks ?? new string[0]) + "]";
+
+            return custom;
+        }
+    }
+}

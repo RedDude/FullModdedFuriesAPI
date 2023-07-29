@@ -1,0 +1,54 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- import developer's custom path (if any) -->
+  <Import Condition="$(OS) != 'Windows_NT' AND Exists('$(HOME)\fmf.targets')" Project="$(HOME)\fmf.targets" />
+  <Import Condition="$(OS) == 'Windows_NT' AND Exists('$(USERPROFILE)\fmf.targets')" Project="$(USERPROFILE)\fmf.targets" />
+
+  <!-- find game path -->
+  <Choose>
+    <When Condition="$(OS) == 'Unix' OR $(OS) == 'OSX'">
+      <PropertyGroup>
+        <!-- Linux -->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/GOG Games/Full Metal Furies/game</GamePath>-->
+        <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.steam/steam/steamapps/common/Full Metal Furies</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.local/share/Steam/steamapps/common/Full Metal Furies</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/Full Metal Furies</GamePath>
+
+        <!-- macOS (may be 'Unix' or 'OSX') -->
+        <GamePath Condition="!Exists('$(GamePath)')">/Applications/Full Metal Furies.app/Contents/MacOS</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/Library/Application Support/Steam/steamapps/common/Full Metal Furies/Contents/MacOS</GamePath>
+      </PropertyGroup>
+    </When>
+    <When Condition="$(OS) == 'Windows_NT'">
+      <PropertyGroup>
+        <!-- registry paths -->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\GOG.com\Games\1453375253', 'PATH', null, RegistryView.Registry32))</GamePath>-->
+        <GamePath Condition="!Exists('$(GamePath)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 416600', 'InstallLocation', null, RegistryView.Registry64, RegistryView.Registry32))</GamePath>
+
+        <!-- derive from Steam library path -->
+        <_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\SOFTWARE\Valve\Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
+        <GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\Full Metal Furies</GamePath>
+
+        <!-- default paths -->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GalaxyClient\Games\Full Metal Furies</GamePath>-->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GOG Galaxy\Games\Full Metal Furies</GamePath>-->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GOG Games\Full Metal Furies</GamePath>-->
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Full Metal Furies</GamePath>
+
+<!--        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GalaxyClient\Games\Full Metal Furies</GamePath>-->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GOG Galaxy\Games\Full Metal Furies</GamePath>-->
+<!--        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GOG Games\Full Metal Furies</GamePath>-->
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Full Metal Furies</GamePath>
+      </PropertyGroup>
+    </When>
+  </Choose>
+
+  <!-- set game metadata -->
+  <PropertyGroup>
+    <!--standard executable name-->
+    <GameExecutableName>Brawler2D</GameExecutableName>
+    <GameExecutableName Condition="$(OS) != 'Windows_NT'">Brawler2D</GameExecutableName>
+
+    <!--Linux install on Windows (for 64-bit hack)-->
+    <GameExecutableName Condition="$(OS) == 'Windows_NT' AND !Exists('$(GamePath)\$(GameExecutableName).exe') AND Exists('$(GamePath)\Brawler2D.exe')">Brawler2D</GameExecutableName>
+  </PropertyGroup>
+</Project>

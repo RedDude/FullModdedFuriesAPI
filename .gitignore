@@ -1,0 +1,39 @@
+# user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache/options
+.vs/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Rider
+.idea/
+
+# NuGet packages
+*.nupkg
+**/packages/*
+*.nuget.props
+*.nuget.targets
+
+# sensitive files
+appsettings.Development.json
+
+# Azure generated files
+src/FMODF.Web/Properties/PublishProfiles/*.pubxml
+
+/Tools/Art/toXna/xnbcli-windows-x64/
+/Tools/Art/toXna/node_modules
+Tools/Art/toXna/viewer
+Tools/Art/toXna/viewer_output

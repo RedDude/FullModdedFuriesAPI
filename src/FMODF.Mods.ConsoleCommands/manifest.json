@@ -1,0 +1,9 @@
+{
+    "Name": "Console Commands",
+    "Author": "FMODF",
+    "Version": "3.12.6",
+    "Description": "Adds FMODF console commands that let you manipulate the game.",
+    "UniqueID": "FMODF.ConsoleCommands",
+    "EntryDll": "ConsoleCommands.dll",
+    "MinimumApiVersion": "3.12.6"
+}
