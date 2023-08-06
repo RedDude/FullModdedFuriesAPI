@@ -1,4 +1,4 @@
-**FMODF** is an open-source modding framework and API for Full Metal Furies from Cellar Door Games, it is a Port from SMAPI
+**FMODF** is an (WIP) open-source modding framework and API for Full Metal Furies from Cellar Door Games, it is a Port from SMAPI
 that lets you play the game with mods. It's safely installed alongside the game's executable, and
 doesn't change any of your game files. It serves seven main purposes:
 
