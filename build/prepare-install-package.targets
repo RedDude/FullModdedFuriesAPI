@@ -91,50 +91,24 @@
       <PackageFiles Include="$(PackagePath)\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDevPath)\%(RecursiveDir)" />
-    <ZipDirectory FromDirPath="$(PackageDevPath)\bundle" ToFilePath="$(PackageDevPath)\internal\install.dat"  />
+    <ZipDirectory SourceDirectory="$(PackageDevPath)\bundle" DestinationFile="$(PackageDevPath)\internal\install.dat"  />
     <RemoveDir Directories="$(PackageDevPath)\bundle" />
 
     <!-- finalise normal installer -->
     <ReplaceFileText FilePath="$(PackagePath)\bundle\fmodf-internal\config.json" Search="&quot;DeveloperMode&quot;: true" Replace="&quot;DeveloperMode&quot;: false" />
-    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\install.dat" />
+    <ZipDirectory SourceDirectory="$(PackagePath)\bundle" DestinationFile="$(PackagePath)\internal\install.dat" />
     <RemoveDir Directories="$(PackagePath)\bundle" />
   </Target>
 
-  <!-- Create a zip file with the contents of a given folder path. Derived from https://stackoverflow.com/a/38127938/262123. -->
-  <UsingTask TaskName="ZipDirectory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
-    <ParameterGroup>
-      <FromDirPath ParameterType="System.String" Required="true" />
-      <ToFilePath ParameterType="System.String" Required="true" />
-    </ParameterGroup>
-    <Task>
-      <Reference Include="System.IO.Compression.FileSystem" />
-      <Using Namespace="System.IO.Compression" />
-      <Code Type="Fragment" Language="cs">
-        <![CDATA[
-        try
-        {
-          ZipFile.CreateFromDirectory(FromDirPath, ToFilePath);
-          return true;
-        }
-        catch(Exception ex)
-        {
-          Log.LogErrorFromException(ex);
-          return false;
-        }
-        ]]>
-      </Code>
-    </Task>
-  </UsingTask>
-
+ 
   <!-- Replace text in a file based on a regex pattern. Derived from https://stackoverflow.com/a/22571621/262123. -->
-  <UsingTask TaskName="ReplaceFileText" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+  <UsingTask TaskName="ReplaceFileText" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <FilePath ParameterType="System.String" Required="true" />
       <Search ParameterType="System.String" Required="true" />
       <Replace ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
-      <Reference Include="System.Core" />
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Text.RegularExpressions" />

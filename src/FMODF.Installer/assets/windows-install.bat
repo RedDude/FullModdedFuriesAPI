@@ -15,12 +15,12 @@ if %ERRORLEVEL% NEQ 0 (
     exit
 )
 
-REM make sure an antivirus hasn't deleted the installer DLL
-if not exist internal\install.exe (
-    echo "Oops! FMODF can't find its 'internal\installer.exe' file. Your antivirus might have deleted the file."
+REM make sure an antivirus hasn't deleted the install DLL
+if not exist "internal\install.exe" (
+    echo "Oops! FMODF can't find its 'internal\install.exe' file. Your antivirus might have deleted the file."
     pause
     exit
 )
 
 REM start installer
-dotnet internal\install.exe
+dotnet "internal\install.exe"
