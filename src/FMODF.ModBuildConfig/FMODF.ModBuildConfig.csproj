@@ -16,13 +16,12 @@
     <PackageIcon>images/icon.png</PackageIcon>
     <PackageProjectUrl></PackageProjectUrl>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <PackageVersion>2.0.1</PackageVersion>
+    <PackageVersion>2.0.3</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
@@ -44,5 +43,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FMODF.Toolkit\FMODF.Toolkit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="14.3.0" />
   </ItemGroup>
 </Project>
